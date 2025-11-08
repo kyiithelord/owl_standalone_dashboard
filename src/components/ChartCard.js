@@ -14,12 +14,45 @@ export default class ChartCard extends Component {
   setup() {
     this.canvasRef = useRef("canvas");
     this.chart = null;
+    const getVar = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+    const resolveColor = (val) => {
+      if (typeof val === 'string') {
+        const s = val.trim();
+        if (s.startsWith('var(') && s.endsWith(')')) {
+          const name = s.slice(4, -1).trim();
+          const v = getVar(name);
+          return v || s;
+        }
+        return s;
+      }
+      if (Array.isArray(val)) {
+        return val.map((v) => resolveColor(v));
+      }
+      return val;
+    };
+    const resolveDataColors = (data) => {
+      if (!data) return data;
+      const ds = (data.datasets || []).map((d) => ({
+        ...d,
+        borderColor: resolveColor(d.borderColor),
+        backgroundColor: resolveColor(d.backgroundColor),
+      }));
+      return { ...data, datasets: ds };
+    };
+    this._resolveDataColors = resolveDataColors;
+    // no dynamic theme updates to avoid scriptable option edge-cases
+
     onMounted(() => {
       const ctx = this.canvasRef.el.getContext("2d");
+      const baseOptions = this.props.options || {};
+      const resolvedData = this._resolveDataColors(this.props.data);
       this.chart = new Chart(ctx, {
         type: this.props.type,
-        data: this.props.data,
-        options: this.props.options || {},
+        data: resolvedData,
+        options: {
+          maintainAspectRatio: false,
+          ...baseOptions,
+        },
       });
     });
     onWillUnmount(() => {

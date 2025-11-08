@@ -1,9 +1,10 @@
 import { Component, xml, useState } from "@odoo/owl";
 import Card from "../components/Card.js";
 import ChartCard from "../components/ChartCard.js";
+import TimeSeriesCard from "../components/TimeSeriesCard.js";
 
 export default class Dashboard extends Component {
-  static components = { Card, ChartCard };
+  static components = { Card, ChartCard, TimeSeriesCard };
   setup() {
     this.state = useState({
       lineData: {
@@ -50,6 +51,7 @@ export default class Dashboard extends Component {
         <Card title="'Customers'" value="867" subtitle="'Active'"/>
         <Card title="'Conversion'" value="'3.1%'" subtitle="'Last 30 days'"/>
       </div>
+      <TimeSeriesCard/>
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <div class="lg:col-span-2">
           <ChartCard t-props="{ title: 'Traffic (Line)', type: 'line', data: state.lineData, height: 260 }"/>
