@@ -1,4 +1,4 @@
-import { Component, xml, useRef, onMounted, onWillUnmount } from "@odoo/owl";
+import { Component, xml, useRef, onMounted, onWillUnmount, onWillUpdateProps } from "@odoo/owl";
 import Card from "./Card.js";
 import { Chart } from "chart.js/auto";
 
@@ -54,6 +54,15 @@ export default class ChartCard extends Component {
           ...baseOptions,
         },
       });
+    });
+    onWillUpdateProps((nextProps) => {
+      if (!this.chart) return;
+      const nextData = this._resolveDataColors(nextProps.data);
+      this.chart.data = nextData;
+      if (nextProps.options) {
+        this.chart.options = { ...(nextProps.options || {}) };
+      }
+      this.chart.update();
     });
     onWillUnmount(() => {
       if (this.chart) this.chart.destroy();
